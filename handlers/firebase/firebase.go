@@ -126,6 +126,7 @@ type mtPayload struct {
 	} `json:"data"`
 	Notification     *mtNotification `json:"notification,omitempty"`
 	QuickReplies     []mtQuickReply  `json:"quick_replies,omitempty"`
+	URLButtons       []mtURLButton   `json:"url_buttons,omitempty"`
 	ContentAvailable bool            `json:"content_available"`
 	To               string          `json:"to"`
 	Priority         string          `json:"priority"`
@@ -139,6 +140,11 @@ type mtNotification struct {
 type mtQuickReply struct {
 	Title   string `json:"title"`
 	Payload string `json:"payload"`
+}
+
+type mtURLButton struct {
+	Title   string `json:"title"`
+	Payload string `json:"url"`
 }
 
 // SendMsg sends the passed in message, returning any error
@@ -185,7 +191,18 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 			payload.QuickReplies = quickReplies
 		}
 
+		if len(msg.UrlButtons()) > 0 {
+			urlButtons := make([]mtURLButton, len(msg.UrlButtons()))
+			for i, urlButton := range msg.UrlButtons() {
+				urlButtons[i].Title = urlButton.Title
+				urlButtons[i].Payload = urlButton.Url
+			}
+
+			payload.URLButtons = urlButtons
+		}
+
 		jsonPayload, err := json.Marshal(payload)
+
 		if err != nil {
 			return nil, err
 		}
