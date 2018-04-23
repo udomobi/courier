@@ -40,7 +40,6 @@ const (
 
 func init() {
 	courier.RegisterHandler(newHandler("TWT", "Twitter Activity"))
-	courier.RegisterHandler(newHandler("TT", "Twitter"))
 }
 
 type handler struct {
@@ -253,6 +252,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 	apiSecret := msg.Channel().StringConfigForKey(configAPISecret, "")
 	accessToken := msg.Channel().StringConfigForKey(configAccessToken, "")
 	accessSecret := msg.Channel().StringConfigForKey(configAccessTokenSecret, "")
+
 	if apiKey == "" || apiSecret == "" || accessToken == "" || accessSecret == "" {
 		return nil, fmt.Errorf("missing api or tokens for TWT channel")
 	}
