@@ -200,6 +200,20 @@ var defaultSendTestCases = []ChannelSendTestCase{
 		ResponseStatus: 401,
 		RequestBody:    `{"sendSmsRequest":{"to":"250788383383","schedule":"","msg":"Error Message","callbackOption":"FINAL","id":"10","aggregateId":""}}`,
 		SendPrep:       setSendURL},
+	{Label: "Not Accepted Characters Send",
+		Text:           "É uma mensagem de açúcar para você!",
+		URN:            "tel:+250788383383",
+		Status:         "W",
+		ExternalID:     "",
+		ResponseBody:   `{"sendSmsResponse":{"statusCode":"00","statusDescription":"Ok","detailCode":"000","detailDescription":"Message Sent"}}`,
+		ResponseStatus: 200,
+		Headers: map[string]string{
+			"Content-Type":  "application/json",
+			"Accept":        "application/json",
+			"Authorization": "Basic enYtdXNlcm5hbWU6enYtcGFzc3dvcmQ=",
+		},
+		RequestBody: `{"sendSmsRequest":{"to":"250788383383","schedule":"","msg":"E uma mensagem de acucar para voce!","callbackOption":"1","id":"10","aggregateId":""}}`,
+		SendPrep:    setSendURL},
 }
 
 func TestSending(t *testing.T) {

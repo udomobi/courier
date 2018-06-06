@@ -402,6 +402,7 @@ type DBMsg struct {
 	workerToken    queue.WorkerToken
 	alreadyWritten bool
 	quickReplies   []string
+	urlButtons     []courier.UrlButton
 }
 
 func (m *DBMsg) ID() courier.MsgID            { return m.ID_ }
@@ -438,6 +439,31 @@ func (m *DBMsg) QuickReplies() []string {
 		},
 		"quick_replies")
 	return m.quickReplies
+}
+
+func (m *DBMsg) UrlButtons() []courier.UrlButton {
+	if m.urlButtons != nil {
+		return m.urlButtons
+	}
+
+	if m.Metadata_ == nil {
+		return nil
+	}
+
+	var newUButton courier.UrlButton
+	m.urlButtons = []courier.UrlButton{}
+	jsonparser.ArrayEach(
+		m.Metadata_,
+		func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+			er := json.Unmarshal(value, &newUButton)
+			if err != nil {
+				fmt.Printf("err was %v", er)
+			}
+			m.urlButtons = append(m.urlButtons, newUButton)
+		},
+		"url_buttons")
+
+	return m.urlButtons
 }
 
 // fingerprint returns a fingerprint for this msg, suitable for figuring out if this is a dupe

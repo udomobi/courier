@@ -69,6 +69,7 @@ type Msg interface {
 	URNAuth() string
 	ContactName() string
 	QuickReplies() []string
+	UrlButtons() []UrlButton
 	ResponseToID() MsgID
 	ResponseToExternalID() string
 
@@ -88,4 +89,9 @@ type Msg interface {
 	WithURNAuth(auth string) Msg
 
 	EventID() int64
+}
+
+type UrlButton struct {
+	Title string `json:"title"`
+	Url   string `json:"url"`
 }

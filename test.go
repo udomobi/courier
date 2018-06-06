@@ -440,6 +440,7 @@ type mockMsg struct {
 	contactName          string
 	highPriority         bool
 	quickReplies         []string
+	urlButtons           []UrlButton
 	responseToID         MsgID
 	responseToExternalID string
 
@@ -460,6 +461,7 @@ func (m *mockMsg) URNAuth() string              { return m.urnAuth }
 func (m *mockMsg) ContactName() string          { return m.contactName }
 func (m *mockMsg) HighPriority() bool           { return m.highPriority }
 func (m *mockMsg) QuickReplies() []string       { return m.quickReplies }
+func (m *mockMsg) UrlButtons() []UrlButton      { return m.urlButtons }
 func (m *mockMsg) ResponseToID() MsgID          { return m.responseToID }
 func (m *mockMsg) ResponseToExternalID() string { return m.responseToExternalID }
 

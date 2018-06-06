@@ -185,6 +185,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 
 	// figure out whether we have a keyboard to send as well
 	qrs := msg.QuickReplies()
+	ubs := msg.UrlButtons()
 	replies := ""
 
 	if len(qrs) > 0 {
@@ -198,6 +199,20 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 		if err != nil {
 			return nil, err
 		}
+		replies = string(replyBytes)
+	} else if len(ubs) > 0 {
+		keys := make([]moButton, len(ubs))
+		for i, ub := range ubs {
+			keys[i].Text = ub.Title
+			keys[i].Url = ub.Url
+		}
+
+		ik := moInlineKeyboard{true, true, [][]moButton{keys}}
+		replyBytes, err := json.Marshal(ik)
+		if err != nil {
+			return nil, err
+		}
+
 		replies = string(replyBytes)
 	}
 
@@ -318,8 +333,19 @@ type moKeyboard struct {
 	Keyboard        [][]moKey `json:"keyboard"`
 }
 
+type moInlineKeyboard struct {
+	ResizeKeyboard  bool         `json:"resize_keyboard"`
+	OneTimeKeyboard bool         `json:"one_time_keyboard"`
+	InlineKeyboard  [][]moButton `json:"inline_keyboard"`
+}
+
 type moKey struct {
 	Text string `json:"text"`
+}
+
+type moButton struct {
+	Text string `json:"text"`
+	Url  string `json:"url"`
 }
 
 type moFile struct {

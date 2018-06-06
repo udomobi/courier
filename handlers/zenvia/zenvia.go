@@ -181,7 +181,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 	for _, part := range parts {
 		zvMsg := mtPayload{}
 		zvMsg.SendSMSRequest.To = strings.TrimLeft(msg.URN().Path(), "+")
-		zvMsg.SendSMSRequest.Msg = part
+		zvMsg.SendSMSRequest.Msg = utils.ToAscii(part)
 		zvMsg.SendSMSRequest.ID = msg.ID().String()
 		zvMsg.SendSMSRequest.CallbackOption = "FINAL"
 
