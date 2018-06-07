@@ -227,6 +227,7 @@ type mtPayload struct {
 			MessageData struct {
 				Text       string `json:"text"`
 				QuickReply *mtQR  `json:"quick_reply,omitempty"`
+				Ctas	   []mtURLButton  `json:"ctas,omitempty"`
 			} `json:"message_data"`
 		} `json:"message_create"`
 	} `json:"event"`
@@ -239,6 +240,12 @@ type mtQR struct {
 
 type mtQROption struct {
 	Label string `json:"label"`
+}
+
+type mtURLButton struct {
+	Type  string `json:"type"`
+	Label string `json:"label"`
+	URL   string `json:"url"`
 }
 
 func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStatus, error) {
@@ -262,7 +269,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 		payload.Event.Type = "message_create"
 		payload.Event.MessageCreate.Target.RecipientID = msg.URN().Path()
 		payload.Event.MessageCreate.MessageData.Text = text
-
+		
 		// attach quick replies if we have them
 		if i == 0 && len(msg.QuickReplies()) > 0 {
 			qrs := &mtQR{}
@@ -274,6 +281,12 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 				qrs.Options = append(qrs.Options, mtQROption{option})
 			}
 			payload.Event.MessageCreate.MessageData.QuickReply = qrs
+		} else if i == 0 && len(msg.UrlButtons()) > 0 {
+			ubs := []mtURLButton{}
+			for _, ub := range msg.UrlButtons() {
+				ubs = append(ubs, mtURLButton{"web_url", ub.Title, ub.Url})
+			}
+			payload.Event.MessageCreate.MessageData.Ctas = ubs
 		}
 
 		jsonBody, err := json.Marshal(payload)
