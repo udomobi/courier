@@ -237,9 +237,9 @@ type mtPayload struct {
 				RecipientID string `json:"recipient_id"`
 			} `json:"target"`
 			MessageData struct {
-				Text       string `json:"text"`
-				QuickReply *mtQR  `json:"quick_reply,omitempty"`
-				Ctas	   []mtURLButton  `json:"ctas,omitempty"`
+				Text       string 		  `json:"text"`
+				QuickReply *mtQR  		  `json:"quick_reply,omitempty"`
+				URLButtons []mtURLButton  `json:"ctas,omitempty"`
 			} `json:"message_data"`
 		} `json:"message_create"`
 	} `json:"event"`
@@ -298,7 +298,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 			for _, ub := range msg.UrlButtons() {
 				ubs = append(ubs, mtURLButton{"web_url", ub.Title, ub.Url})
 			}
-			payload.Event.MessageCreate.MessageData.Ctas = ubs
+			payload.Event.MessageCreate.MessageData.URLButtons = ubs
 		}
 
 		jsonBody, err := json.Marshal(payload)
