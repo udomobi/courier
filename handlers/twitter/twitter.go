@@ -212,7 +212,19 @@ func (h *handler) receiveEvent(ctx context.Context, c courier.Channel, w http.Re
 //           "options": [
 //	           { "label": "Red"}, {"label": "Green"}
 //           ]
-//         }
+//         },
+//		   "ctas": [
+//			{
+//				"type": "web_url",
+//				"label": "Map it",
+//				"url": "https://www.myairline.domain/map-it"
+//	         },
+//			{
+//				"type": "web_url",
+//				"label": "Visit MyAirline.domain",
+//				"url": "https://www.myairline.domain/"
+//	        }
+//		   ]
 //       }
 //     }
 //	 }
