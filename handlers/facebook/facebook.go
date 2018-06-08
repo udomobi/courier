@@ -402,29 +402,14 @@ type mtPayload struct {
 	} `json:"message"`
 }
 
-type mtUBPayload struct {
-	MessagingType string `json:"messaging_type"`
-	Recipient     struct {
-		UserRef string `json:"user_ref,omitempty"`
-		ID      string `json:"id,omitempty"`
-	} `json:"recipient"`
-	Message struct {
-		Attachment struct {
-			Type    string `json:"type"`
-			Payload struct {
-				TemplateType string        `json:"template_type"`
-				Text         string        `json:"text"`
-				Buttons      []mtUrlButton `json:"buttons"`
-			} `json:"recipient"`
-		} `json:"attachment"`
-	} `json:"message"`
-}
-
 type mtAttachment struct {
 	Type    string `json:"type"`
 	Payload struct {
-		URL        string `json:"url"`
-		IsReusable bool   `json:"is_reusable"`
+		URL        		string 			`json:"url,omitempty"`
+		IsReusable 		bool   			`json:"is_reusable,omitempty"`
+		TemplateType 	string 			`json:"template_type,omitempty"`
+		Text 			string 			`json:"text,omitempty"`
+		Buttons 		[]mtURLButton 	`json:"buttons,omitempty"`
 	} `json:"payload"`
 }
 
@@ -434,11 +419,12 @@ type mtQuickReply struct {
 	ContentType string `json:"content_type"`
 }
 
-type mtUrlButton struct {
-	Title              string `json:"title"`
-	Url                string `json:"url"`
+type mtURLButton struct {
 	Type               string `json:"type"`
-	WebViewHieghtRatio string `json:"webview_height_ratio"`
+	Title              string `json:"title"`
+	URL                string `json:"url"`
+	WebViewHeightRatio string `json:"webview_height_ratio"`
+	MsgExtensions      string `json:"messenger_extensions"`
 }
 
 func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStatus, error) {
@@ -449,24 +435,19 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 	}
 
 	payload := mtPayload{}
-	ubPayload := mtUBPayload{}
 
 	// set our message type
 	if msg.ResponseToID().IsZero() {
 		payload.MessagingType = "NON_PROMOTIONAL_SUBSCRIPTION"
-		ubPayload.MessagingType = "NON_PROMOTIONAL_SUBSCRIPTION"
 	} else {
 		payload.MessagingType = "RESPONSE"
-		ubPayload.MessagingType = "RESPONSE"
 	}
 
 	// build our recipient
 	if msg.URN().IsFacebookRef() {
 		payload.Recipient.UserRef = msg.URN().FacebookRef()
-		ubPayload.Recipient.UserRef = msg.URN().FacebookRef()
 	} else {
 		payload.Recipient.ID = msg.URN().Path()
-		ubPayload.Recipient.ID = msg.URN().Path()
 	}
 
 	msgURL, _ := url.Parse(sendURL)
@@ -500,42 +481,33 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 		}
 
 		// include any quick replies on the first piece we send
-		var messageTypeIndex int = 0
 		if i == 0 {
 			qrs := msg.QuickReplies()
 			ubs := msg.UrlButtons()
+
 			if len(qrs) > 0 {
 				for _, qr := range qrs {
 					payload.Message.QuickReplies = append(payload.Message.QuickReplies, mtQuickReply{qr, qr, "text"})
 				}
-				messageTypeIndex = 1
 			} else if len(ubs) > 0 {
-				var buttons []mtUrlButton
+				mtb := []mtURLButton{}
 				for _, ub := range ubs {
-					newUrlButton := mtUrlButton{ub.Title, ub.Url, "web_url", "tall"}
-					buttons = append(buttons, newUrlButton)
-
-				}
-				ubPayload.Message.Attachment.Type = "template"
-				ubPayload.Message.Attachment.Payload.TemplateType = "button"
-				ubPayload.Message.Attachment.Payload.Text = payload.Message.Text
-				ubPayload.Message.Attachment.Payload.Buttons = buttons
-				messageTypeIndex = 2
+		 			mtb = append(mtb, mtURLButton{"web_url", ub.Title, ub.Url, "tall", "false"})
+		 		}
+				payload.Message.Attachment = &mtAttachment{}
+				payload.Message.Attachment.Type = "template"
+				payload.Message.Attachment.Payload.TemplateType = "button"
+				payload.Message.Attachment.Payload.Text = payload.Message.Text
+				payload.Message.Attachment.Payload.Buttons = mtb
+				payload.Message.Text = ""
 			}
 		} else {
 			payload.Message.QuickReplies = nil
-			ubPayload.Message.Attachment.Payload.Buttons = nil
+			payload.Message.Attachment.Payload.Buttons = nil
 		}
 
-		var newPayload interface{}
+		jsonBody, err := json.Marshal(payload)
 
-		if messageTypeIndex == 1 {
-			newPayload = payload
-		} else if messageTypeIndex == 2 {
-			newPayload = ubPayload
-		}
-
-		jsonBody, err := json.Marshal(newPayload)
 		if err != nil {
 			return status, err
 		}
