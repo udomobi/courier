@@ -407,9 +407,9 @@ type mtAttachment struct {
 	Payload struct {
 		URL        		string          `json:"url,omitempty"`
 		IsReusable 		bool            `json:"is_reusable,omitempty"`
-		TemplateType    string          `json:"template_type,omitempty"`
+		TemplateType	string			`json:"template_type,omitempty"`
 		Text 			string 			`json:"text,omitempty"`
-		Buttons         []mtURLButton   `json:"buttons,omitempty"`
+		Buttons			[]mtURLButton	`json:"buttons,omitempty"`
 	} `json:"payload"`
 }
 
