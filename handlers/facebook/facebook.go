@@ -405,8 +405,11 @@ type mtPayload struct {
 type mtAttachment struct {
 	Type    string `json:"type"`
 	Payload struct {
-		URL        string `json:"url"`
-		IsReusable bool   `json:"is_reusable"`
+		URL        		string 			`json:"url,omitempty"`
+		IsReusable 		bool   			`json:"is_reusable,omitempty"`
+		TemplateType 	string 			`json:"template_type,omitempty"`
+		Text 			string 			`json:"text,omitempty"`
+		Buttons 		[]mtURLButton 	`json:"buttons,omitempty"`
 	} `json:"payload"`
 }
 
@@ -414,6 +417,14 @@ type mtQuickReply struct {
 	Title       string `json:"title"`
 	Payload     string `json:"payload"`
 	ContentType string `json:"content_type"`
+}
+
+type mtURLButton struct {
+	Type               string `json:"type"`
+	Title              string `json:"title"`
+	URL                string `json:"url"`
+	WebViewHeightRatio string `json:"webview_height_ratio"`
+	MsgExtensions      string `json:"messenger_extensions"`
 }
 
 func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStatus, error) {
@@ -457,6 +468,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 			// this is still a msg part
 			payload.Message.Text = msgParts[i]
 			payload.Message.Attachment = nil
+
 		} else {
 			// this is an attachment
 			payload.Message.Attachment = &mtAttachment{}
@@ -470,14 +482,32 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 
 		// include any quick replies on the first piece we send
 		if i == 0 {
-			for _, qr := range msg.QuickReplies() {
-				payload.Message.QuickReplies = append(payload.Message.QuickReplies, mtQuickReply{qr, qr, "text"})
+			qrs := msg.QuickReplies()
+			ubs := msg.UrlButtons()
+
+			if len(qrs) > 0 {
+				for _, qr := range qrs {
+					payload.Message.QuickReplies = append(payload.Message.QuickReplies, mtQuickReply{qr, qr, "text"})
+				}
+			} else if len(ubs) > 0 {
+				mtb := []mtURLButton{}
+				for _, ub := range ubs {
+		 			mtb = append(mtb, mtURLButton{"web_url", ub.Title, ub.Url, "tall", "false"})
+		 		}
+				payload.Message.Attachment = &mtAttachment{}
+				payload.Message.Attachment.Type = "template"
+				payload.Message.Attachment.Payload.TemplateType = "button"
+				payload.Message.Attachment.Payload.Text = payload.Message.Text
+				payload.Message.Attachment.Payload.Buttons = mtb
+				payload.Message.Text = ""
 			}
 		} else {
 			payload.Message.QuickReplies = nil
+			payload.Message.Attachment.Payload.Buttons = nil
 		}
 
 		jsonBody, err := json.Marshal(payload)
+
 		if err != nil {
 			return status, err
 		}
