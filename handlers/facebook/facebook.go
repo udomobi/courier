@@ -405,11 +405,11 @@ type mtPayload struct {
 type mtAttachment struct {
 	Type    string `json:"type"`
 	Payload struct {
-		URL        		string 			`json:"url,omitempty"`
-		IsReusable 		bool   			`json:"is_reusable,omitempty"`
-		TemplateType 	string 			`json:"template_type,omitempty"`
+		URL        		string          `json:"url,omitempty"`
+		IsReusable 		bool            `json:"is_reusable,omitempty"`
+		TemplateType    string          `json:"template_type,omitempty"`
 		Text 			string 			`json:"text,omitempty"`
-		Buttons 		[]mtURLButton 	`json:"buttons,omitempty"`
+		Buttons         []mtURLButton   `json:"buttons,omitempty"`
 	} `json:"payload"`
 }
 
