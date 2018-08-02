@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/evalphobia/logrus_sentry"
+	//"github.com/evalphobia/logrus_sentry"
 	_ "github.com/lib/pq"
 	"github.com/nyaruka/courier"
 	"github.com/sirupsen/logrus"
@@ -72,7 +72,7 @@ func main() {
 	logrus.SetLevel(level)
 
 	// if we have a DSN entry, try to initialize it
-	if config.SentryDSN != "" {
+	/*if config.SentryDSN != "" {
 		hook, err := logrus_sentry.NewSentryHook(config.SentryDSN, []logrus.Level{logrus.PanicLevel, logrus.FatalLevel, logrus.ErrorLevel})
 		hook.Timeout = 0
 		hook.StacktraceConfiguration.Enable = true
@@ -82,7 +82,7 @@ func main() {
 			logrus.Fatalf("Invalid sentry DSN: '%s': %s", config.SentryDSN, err)
 		}
 		logrus.StandardLogger().Hooks.Add(hook)
-	}
+	}*/
 
 	// load our backend
 	backend, err := courier.NewBackend(config)
