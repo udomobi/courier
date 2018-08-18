@@ -19,7 +19,7 @@ import (
 
 var (
 	maxMsgLength = 1152
-	sendURL      = "https://api-rest.zenvia360.com.br/services/send-sms"
+	sendURL      = "https://api-rest.zenvia.com/services/send-sms"
 )
 
 func init() {
