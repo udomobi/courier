@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	maxMsgLength = 160
+	maxMsgLength = 1152
 	sendURL      = "https://api-rest.zenvia.com/services/send-sms"
 )
 
