@@ -20,9 +20,9 @@ import (
 )
 
 const (
-	contentURLEncoded = "application/x-www-form-urlencoded"
-	contentJSON       = "application/json"
-	contentXML        = "text/xml; charset=utf-8"
+	contentURLEncoded = "urlencoded"
+	contentJSON       = "json"
+	contentXML        = "xml"
 )
 
 func init() {

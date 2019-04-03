@@ -1,5 +1,5 @@
 REGISTRY = 452158872079.dkr.ecr.us-east-1.amazonaws.com
-IMAGE = courier-rapidpro
+IMAGE = courier-udo
 BUILD_NUMBER?=latest
 
 .PHONY: build release
