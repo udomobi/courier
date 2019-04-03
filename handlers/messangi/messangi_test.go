@@ -44,7 +44,21 @@ var defaultSendTestCases = []ChannelSendTestCase {
 		Status: "W", ExternalID: "",
 		ResponseBody: `<response><input>sendMT</input><status>OK</status><description>Completed</description></response>`,
 		ResponseStatus: 200,
-		SendPrep:    setSendURL},
+		SendPrep: setSendURL},
+	{Label: "Long Send",
+		Text: "This is a longer message than 160 characters and will cause us to split it into two separate parts, isn't that right but it is even longer than before I say, I need to keep adding more things to make it work",
+		URN: "tel:+18765422035",
+		Status: "W",
+		ExternalID: "",
+		ResponseBody: `<response><input>sendMT</input><status>OK</status><description>Completed</description></response>`,
+		ResponseStatus: 200,
+		SendPrep: setSendURL},
+	{Label: "Send Attachment",
+		Text: "My pic!", URN: "tel:+18765422035", Attachments: []string{"image/jpeg:https://foo.bar/image.jpg"},
+		Status: "W", ExternalID: "",
+		ResponseBody: `<response><input>sendMT</input><status>OK</status><description>Completed</description></response>`,
+		ResponseStatus: 200,
+		SendPrep: setSendURL},
 	{Label: "Invalid Parameters",
 		Text: "Invalid Parameters", URN: "tel:+18765422035",
 		Status: "E",
@@ -62,10 +76,10 @@ func TestSending(t *testing.T) {
 	maxMsgLength = 160
 	var defaultChannel = courier.NewMockChannel("8eb23e93-5ecb-45ba-b726-3b064e0c56ab", "MG", "2020", "JM",
 		map[string]interface{}{
-			"messangi_public_key": "my-public-key",
-			"messangi_private_key": "my-private-key",
-			"messangi_instance_id": 7,
-			"messangi_carrier_id": 2,
+			"public_key": "my-public-key",
+			"private_key": "my-private-key",
+			"instance_id": 7,
+			"carrier_id": 2,
 		})
 	RunChannelSendTestCases(t, defaultChannel, newHandler(), defaultSendTestCases, nil)
 }
