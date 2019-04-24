@@ -173,7 +173,7 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
         payload.Data.Message = part
         payload.Data.MessageID = msg.ID().Int64
 
-        payload.To = string(msg.URN()[4:])
+        payload.To = msg.URNAuth()
         payload.Priority = "high"
 
         if notification {
