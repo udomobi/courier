@@ -179,8 +179,13 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
             payload.ContentAvailable = true
         }
 
-        payload.Data.MetaData.QuickReplies = msg.QuickReplies()
+        qrs := msg.QuickReplies()
         ubs := msg.UrlButtons()
+
+        if len(qrs) > 0 {
+            payload.Data.MetaData = &mtMetaData{}
+            payload.Data.MetaData.QuickReplies = qrs
+        }
 
         if len(ubs) > 0 {
             urlButtons := make([]mtURLButton, len(ubs))
