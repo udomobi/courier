@@ -130,7 +130,7 @@ type mtPayload struct {
 }
 
 type mtMetaData struct {
-    QuickReplies     []mtQuickReply  `json:"quick_replies,omitempty"`
+    QuickReplies     []string  `json:"quick_replies,omitempty"`
     URLButtons       []mtURLButton   `json:"url_buttons,omitempty"`
 }
 
