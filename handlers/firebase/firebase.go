@@ -139,11 +139,6 @@ type mtNotification struct {
     Body  string `json:"body"`
 }
 
-type mtQuickReply struct {
-    Title   string `json:"title"`
-    Payload string `json:"payload"`
-}
-
 type mtURLButton struct {
     Title   string `json:"title"`
     URL     string `json:"url"`
@@ -184,18 +179,8 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
             payload.ContentAvailable = true
         }
 
-        qrs := msg.QuickReplies()
+        payload.Data.MetaData.QuickReplies = msg.QuickReplies()
         ubs := msg.UrlButtons()
-
-        if len(qrs) > 0 {
-            quickReplies := make([]mtQuickReply, len(qrs))
-            for i, qr := range qrs {
-                quickReplies[i].Title = qr
-                quickReplies[i].Payload = qr
-            }
-            payload.Data.MetaData = &mtMetaData{}
-            payload.Data.MetaData.QuickReplies = quickReplies
-        }
 
         if len(ubs) > 0 {
             urlButtons := make([]mtURLButton, len(ubs))
