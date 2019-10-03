@@ -111,7 +111,17 @@ func (h *handler) receiveMessage(ctx context.Context, channel courier.Channel, w
 	}
 
 	// create our URN
-	urn, err := urns.NewTelURNForCountry(form.From, form.FromCountry)
+	var urn urns.URN
+	if channel.IsScheme(urns.WhatsAppScheme) {
+		// Twilio Whatsapp from is in the form: whatsapp:+12211414154
+		parts := strings.Split(form.From, ":")
+
+		// trim off left +, official whatsapp IDs dont have that
+		urn, err = urns.NewWhatsAppURN(strings.TrimLeft(parts[1], "+"))
+	} else {
+		urn, err = urns.NewTelURNForCountry(form.From, form.FromCountry)
+	}
+
 	if err != nil {
 		return nil, handlers.WriteAndLogRequestError(ctx, h, channel, w, r, err)
 	}
@@ -191,6 +201,8 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 		return nil, fmt.Errorf("missing account auth token for twilio channel")
 	}
 
+	channel := msg.Channel()
+
 	status := h.Backend().NewMsgStatusForID(msg.Channel(), msg.ID(), courier.MsgErrored)
 	parts := handlers.SplitMsg(msg.Text(), maxMsgLength)
 	for i, part := range parts {
@@ -213,6 +225,12 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 			form["MessagingServiceSid"] = []string{serviceSID}
 		} else {
 			form["From"] = []string{msg.Channel().Address()}
+		}
+
+		// for whatsapp channels, we have to prepend whatsapp to the To and From
+		if channel.IsScheme(urns.WhatsAppScheme) {
+			form["To"][0] = fmt.Sprintf("%s:+%s", urns.WhatsAppScheme, form["To"][0])
+			form["From"][0] = fmt.Sprintf("%s:%s", urns.WhatsAppScheme, form["From"][0])
 		}
 
 		baseSendURL := msg.Channel().StringConfigForKey(configSendURL, sendURL)
