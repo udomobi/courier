@@ -112,6 +112,9 @@ type Channel interface {
 	Country() string
 	Address() string
 
+	// is this channel for the passed in scheme (and only that scheme)
+	IsScheme(string) bool
+
 	// CallbackDomain returns the domain that should be used for any callbacks the channel registers
 	CallbackDomain(fallbackDomain string) string
 
