@@ -7,7 +7,7 @@ BUILD_NUMBER?=latest
 all: build release
 
 build:
-	docker build -t $(REGISTRY)/$(IMAGE):$(BUILD_NUMBER) . --no-cache
+	docker build -t $(REGISTRY)/$(IMAGE):$(BUILD_NUMBER) .
 
 release:
 	@if ! docker images $(REGISTRY)/$(IMAGE) | awk '{ print $$2 }' | grep -q -F $(BUILD_NUMBER); then echo "$(REGISTRY)/$(IMAGE) version $(BUILD_NUMBER) is not yet built. Please run 'make build'"; false; fi

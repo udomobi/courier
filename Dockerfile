@@ -1,20 +1,14 @@
 FROM golang:1.10-alpine
 
-WORKDIR /app
-
-RUN apk update \
-  && apk add --virtual build-deps gcc git \
-  && rm -rf /var/cache/apk/*
-
-RUN addgroup -S golang \
-  && adduser -S -G golang golang
-
+# Prepare app source directory
+ENV APP_PATH /go/src/github.com/nyaruka/courier
+WORKDIR $APP_PATH
 COPY . .
 
-RUN go install -v ./cmd/...
-RUN chown -R golang /app
-
-USER golang
+# Create Spool directory
+RUN mkdir -p /var/spool/courier && \
+    # Install courier application
+    go get -d -v ./... && go install -v ./cmd/...
 
 EXPOSE 80
 ENTRYPOINT ["courier"]
