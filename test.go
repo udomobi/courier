@@ -37,6 +37,8 @@ type MockBackend struct {
 	stoppedMsgContacts []Msg
 	sentMsgs           map[MsgID]bool
 	redisPool          *redis.Pool
+
+	seenExternalIDs []string
 }
 
 // NewMockBackend returns a new mock backend suitable for testing
@@ -469,6 +471,7 @@ type mockMsg struct {
 	urlButtons           []UrlButton
 	responseToID         MsgID
 	responseToExternalID string
+	alreadyWritten       bool
 
 	receivedOn *time.Time
 	sentOn     *time.Time
