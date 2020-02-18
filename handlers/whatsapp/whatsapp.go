@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -488,15 +489,24 @@ func (h *handler) SendMsg(ctx context.Context, msg courier.Msg) (courier.MsgStat
 }
 
 func uploadMediaToWhatsApp(msg courier.Msg, url string, token string, attachmentMimeType string, attachmentURL string) (string, *courier.ChannelLog, error) {
+	start := time.Now()
+
 	// retrieve the media to be sent from S3
 	req, _ := http.NewRequest(http.MethodGet, attachmentURL, nil)
-	s3rr, err := utils.MakeHTTPRequest(req)
+	s3rr, err := utils.GetHTTPClient().Do(req)
 	if err != nil {
-		return "", courier.NewChannelLogFromRR("Media Fetch", msg.Channel(), msg.ID(), s3rr), err
+		end := time.Now().Sub(start)
+		return "", courier.NewChannelLogFromError("Media Fetch", msg.Channel(), msg.ID(), end, err), err
 	}
+	defer s3rr.Body.Close()
+	media, err := ioutil.ReadAll(s3rr.Body)
 
+	if err != nil {
+		end := time.Now().Sub(start)
+		return "", courier.NewChannelLogFromError("Media Read", msg.Channel(), msg.ID(), end, err), err
+	}
 	// upload it to WhatsApp in exchange for a media id
-	waReq, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(s3rr.Body))
+	waReq, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(media))
 	waReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	waReq.Header.Set("Content-Type", attachmentMimeType)
 	waReq.Header.Set("User-Agent", utils.HTTPUserAgent)
