@@ -242,7 +242,7 @@ func resolveMediaURL(channel courier.Channel, mediaID string) (string, error) {
 }
 
 // BuildDownloadMediaRequest to download media for message attachment with Bearer token set
-func (h *handler) BuildDownloadMediaRequest(ctx context.Context, b courier.Backend, channel courier.Channel, attachmentURL string) (*http.Request, error) {
+func (h *handler) BuildDownloadMediaRequest(ctx context.Context, channel courier.Channel, attachmentURL string) (*http.Request, error) {
 	token := channel.StringConfigForKey(courier.ConfigAuthToken, "")
 	if token == "" {
 		return nil, fmt.Errorf("missing token for WA channel")

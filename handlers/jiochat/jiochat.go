@@ -294,7 +294,7 @@ func (h *handler) DescribeURN(ctx context.Context, channel courier.Channel, urn 
 }
 
 // BuildDownloadMediaRequest download media for message attachment
-func (h *handler) BuildDownloadMediaRequest(ctx context.Context, b courier.Backend, channel courier.Channel, attachmentURL string) (*http.Request, error) {
+func (h *handler) BuildDownloadMediaRequest(ctx context.Context, channel courier.Channel, attachmentURL string) (*http.Request, error) {
 	parsedURL, err := url.Parse(attachmentURL)
 	if err != nil {
 		return nil, err
